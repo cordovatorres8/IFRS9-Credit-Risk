@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# PD datasets - do not upload
+PD/data/raw/
+PD/data/processed/
+
+# PD trained models
+PD/models/
