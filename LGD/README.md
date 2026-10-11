@@ -1,57 +1,25 @@
 # LGD — Loss Given Default
 
-## Objective
+## Fuente y objetivo
 
-Develop an educational Loss Given Default (LGD) workflow using a small public, anonymized loan dataset with observed recovery/LGD fields. This is a portfolio exercise, not a production or regulatory model.
+Módulo educativo basado en el `lgd.csv` proporcionado (2.545 observaciones). El [diccionario fuente](https://github.com/JLZml/Credit-Scoring-Data-Sets/blob/master/6.%20Credit%20risk%20analysis/LGD/data%20description) define `lgd_time` como LGD; `Recovery_rate` como recuperación; `purpose1` como indicador de alquiler; y `event=1` como evento de default/cura, `event=0` como no evento. En el CSV las tasas están codificadas como proporciones. Se verificó que `lgd_time = 1 - Recovery_rate` con error máximo 1.11e-16.
 
-## Dataset
+El modelado se limita a `event=1` (1.817 filas); `event` solo filtra la población y no es predictor. El único predictor principal es `LTV`; `purpose1` queda como candidato si se confirma disponibilidad previa.
 
-Initial dataset candidate: **LGD dataset** in the public Credit-Scoring-Data-Sets repository.
+## Control de fuga
 
-- [Dataset description](https://github.com/JLZml/Credit-Scoring-Data-Sets/blob/master/6.%20Credit%20risk%20analysis/LGD/data%20description)
-- [CSV file](https://github.com/JLZml/Credit-Scoring-Data-Sets/blob/master/6.%20Credit%20risk%20analysis/LGD/lgd.csv)
-- The published description reports 2,545 anonymized loan observations provided by a European bank.
+Excluir de X: `Recovery_rate`, `lgd_time`, `y_logistic`, `lnrr`, `Y_probit` y `event`. Recovery_rate es el complemento exacto del objetivo; las transformaciones derivan del target; la disponibilidad de event no está confirmada.
 
-The documented fields include `LTV`, `Recovery_rate`, `lgd_time`, `y_logistic`, `lnrr`, `Y_probit`, `purpose1`, and `event`. The first EDA notebook must verify the actual schema, units, target definition, missing values, and value ranges before modelling.
+## Resultados ejecutados sobre el archivo adjunto
 
-## Target and leakage controls
+Split aleatorio estratificado por `purpose1`, 80/20, semilla 42 (1453 train / 364 test). Baseline de media: MAE **0.3005**, RMSE **0.3464**. Regresión lineal con LTV: MAE **0.2645**, RMSE **0.3261**, R² **0.1129**. No hubo predicciones fuera de [0,1] en este test. Resultados calculados directamente; CSV y filas individuales no se suben.
 
-- Candidate target: `lgd_time`, only after verifying its meaning and scale from the dataset documentation and CSV.
-- `Recovery_rate` is mathematically related to LGD; do not use it as a predictor when predicting LGD.
-- `y_logistic`, `lnrr`, and `Y_probit` are transformations of the target/recovery and must be excluded from the feature matrix.
-- Decide whether `event` is available at the intended prediction time before including it as a predictor.
-- Do not manufacture targets or report model metrics before running the notebooks.
+Se encontraron 120 filas repetidas (17 en event=1), sin ID para determinar su naturaleza. En `event=1`, LGD media=0.3195, mediana=0.1452; LTV máximo=1.984.
 
-## Planned workflow
+## Ejecución local
 
-| Notebook | Purpose |
-|---|---|
-| `01_eda.ipynb` | Inspect schema, LGD distribution, missingness, bounds and relationships |
-| `02_data_quality.ipynb` | Check duplicates, invalid ranges, missingness and target consistency |
-| `03_feature_engineering.ipynb` | Define leakage-safe predictors and train/test split |
-| `04_lgd_model.ipynb` | Fit a baseline and compare regression challengers |
-| `05_validation.ipynb` | Evaluate MAE, RMSE, R², residuals and bounded predictions |
-| `06_monitoring.ipynb` | Check sample stability and document limits of temporal inference |
+Guarde el CSV localmente como `LGD/data/raw/lgd.csv` y ejecute notebooks 01–06 en orden. Raw, processed y modelos están excluidos de Git. Instale `requirements.txt`.
 
-## Methodology principles
+## Límites
 
-- Split data before fitting preprocessing steps.
-- Start with a naive/mean baseline before a more complex model.
-- Report MAE and RMSE; interpret R² cautiously because the sample is small.
-- LGD should be bounded between 0 and 1 (or 0% and 100%). Assess prediction bounds and document any correction or bounded-model approach.
-- Use cross-validation or repeated validation where suitable; avoid overclaiming generalization from 2,545 observations.
-- Clearly distinguish sample stability from genuine out-of-time monitoring.
-
-## Data handling
-
-Download the CSV from the source above and save it locally as:
-
-`LGD/data/raw/lgd.csv`
-
-Raw and processed data must remain excluded from Git version control. Do not commit credentials, personal data, or confidential banking data.
-
-## Limitations
-
-The public data is small, anonymized and may not represent the user's target portfolio. A production IFRS 9 LGD framework would require institution-specific target definitions, recovery cash flows and costs, discounting, workout timing, segmentation, representativeness checks, forward-looking adjustments where relevant, independent validation, governance and monitoring.
-
-This module will document assumptions and results as they are verified; no unexecuted metrics will be presented as completed findings.
+Sin fechas ni identificadores, no hay evaluación temporal ni agrupación por préstamo. La muestra es pequeña, modificada y anonimizada; no garantiza representatividad. Antes de uso real hacen falta cash flows/costos, descuento, madurez y censura del workout, datos temporales y validación independiente. Proyecto educativo, no implementación completa ni declaración de cumplimiento IFRS 9.

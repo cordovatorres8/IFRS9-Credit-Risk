@@ -224,3 +224,7 @@ PD/data/processed/
 
 # PD trained models
 PD/models/
+# LGD datasets and models - do not upload
+LGD/data/raw/
+LGD/data/processed/
+LGD/models/

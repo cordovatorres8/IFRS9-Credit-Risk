@@ -1,9 +1,13 @@
-from sklearn.ensemble import GradientBoostingRegressor
+"""Leakage-aware educational LGD estimators."""
+from sklearn.dummy import DummyRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-
-def build_lgd_baseline():
-    return Pipeline([
-        ("imputer", SimpleImputer(strategy="median")),
-        ("model", GradientBoostingRegressor(random_state=42)),
-    ])
+TARGET = "lgd_time"
+POPULATION_FILTER = {"event": 1}
+FEATURES = ["LTV"]
+LEAKAGE_COLUMNS = ["Recovery_rate", "lgd_time", "y_logistic", "lnrr", "Y_probit", "event"]
+def build_baseline():
+    return DummyRegressor(strategy="mean")
+def build_lgd_model():
+    return make_pipeline(SimpleImputer(strategy="median"), LinearRegression())
