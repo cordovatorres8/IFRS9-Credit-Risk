@@ -1,234 +1,234 @@
-# Probability of Default (PD) Modeling
+# Modelado de la Probabilidad de Incumplimiento (PD)
 
-## Overview
+## Descripción general
 
-This module develops a Probability of Default (PD) modeling framework as part of an educational IFRS 9 Credit Risk project.
+Este módulo desarrolla un marco de modelado de la Probabilidad de Incumplimiento (PD, por sus siglas en inglés) como parte de un proyecto educativo de riesgo de crédito bajo IFRS 9.
 
-The objective is to estimate the probability that a borrower will experience a serious delinquency event within a defined prediction horizon.
+El objetivo es estimar la probabilidad de que un prestatario presente un evento de morosidad grave dentro de un horizonte de predicción definido.
 
-The modeling workflow follows a credit risk development process including:
+El flujo de trabajo sigue un proceso de desarrollo de modelos de riesgo de crédito que incluye:
 
-- Exploratory Data Analysis (EDA)
-- Data quality assessment
-- Feature engineering
-- Interpretable baseline modeling
-- Challenger model development
-- Model validation
-- Calibration assessment
-- Population Stability Index (PSI) monitoring
+- Análisis exploratorio de datos (EDA)
+- Evaluación de la calidad de los datos
+- Ingeniería de características
+- Desarrollo de un modelo base interpretable
+- Desarrollo de un modelo retador
+- Validación del modelo
+- Evaluación de la calibración
+- Monitoreo mediante el Índice de Estabilidad Poblacional (PSI)
 
 ---
 
-## Dataset
+## Conjunto de datos
 
-The modeling exercise uses the public **Give Me Some Credit** dataset.
+El ejercicio utiliza el conjunto de datos público **Give Me Some Credit**.
 
-The dataset contains borrower-level credit information and the target variable:
+El conjunto contiene información de crédito por prestatario y la variable objetivo:
 
 `SeriousDlqin2yrs`
 
-where:
+Donde:
 
-- `1` = serious delinquency within two years
-- `0` = no serious delinquency within two years
+- `1` = morosidad grave dentro de los dos años siguientes
+- `0` = ausencia de morosidad grave dentro de los dos años siguientes
 
-The original dataset contains 150,000 observations.
+El conjunto original contiene 150.000 observaciones.
 
-The overall default rate is approximately **6.68%**.
+La tasa general de incumplimiento es aproximadamente **6,68 %**.
 
-Raw and processed datasets are excluded from version control through `.gitignore`.
-
----
-
-## Modeling Strategy
-
-Two models were developed:
-
-### 1. Logistic Regression — Champion
-
-Logistic Regression was selected as the champion model because of its:
-
-- Interpretability
-- Transparency
-- Suitability for credit risk applications
-- Ease of explaining the relationship between predictors and default probability
-
-The model was developed using leakage-safe feature engineering, where transformation parameters were estimated exclusively using the training sample.
-
-### 2. XGBoost — Challenger
-
-XGBoost was developed as a challenger model to evaluate whether a nonlinear machine learning approach could improve predictive performance.
-
-The challenger model provides higher discriminatory power while being less interpretable than Logistic Regression.
+Los datos brutos y procesados están excluidos del control de versiones mediante `.gitignore`.
 
 ---
 
-## Data Split
+## Estrategia de modelado
 
-The dataset was divided using a stratified train-test split:
+Se desarrollaron dos modelos:
 
-| Sample | Observations |
+### 1. Regresión logística — Modelo campeón
+
+La regresión logística fue seleccionada como modelo campeón por su:
+
+- Interpretabilidad
+- Transparencia
+- Aplicabilidad a casos de riesgo de crédito
+- Facilidad para explicar la relación entre los predictores y la probabilidad de incumplimiento
+
+El modelo se desarrolló mediante ingeniería de características que evita la fuga de información. Los parámetros de transformación se estimaron exclusivamente con la muestra de entrenamiento.
+
+### 2. XGBoost — Modelo retador
+
+XGBoost se desarrolló como modelo retador para evaluar si un enfoque de aprendizaje automático no lineal podía mejorar el desempeño predictivo.
+
+El modelo retador ofrece una mayor capacidad de discriminación, aunque es menos interpretable que la regresión logística.
+
+---
+
+## División de los datos
+
+El conjunto de datos se dividió en muestras de entrenamiento y prueba mediante una partición estratificada:
+
+| Muestra | Observaciones |
 |---|---:|
-| Training | 120,000 |
-| Test | 30,000 |
+| Entrenamiento | 120.000 |
+| Prueba | 30.000 |
 
-The default rate remained approximately **6.68%** in both samples.
-
----
-
-## Features
-
-The final leakage-safe modeling dataset contains 14 features, including:
-
-- Age
-- Debt ratio
-- Credit utilization
-- Monthly income
-- Number of dependents
-- Open credit lines and loans
-- Real estate loans
-- Total late payments
-- Maximum late payment count
-- 90+ days past due indicator
-- Any late payment indicator
-- Late payment severity
-- Late payment burden
-- Income per credit line
+La tasa de incumplimiento se mantuvo aproximadamente en **6,68 %** en ambas muestras.
 
 ---
 
-## Model Performance
+## Variables predictoras
 
-Performance was evaluated using AUC-ROC, Gini coefficient and Kolmogorov-Smirnov (KS) statistic.
+El conjunto final de modelado, preparado para evitar la fuga de información, contiene 14 variables, entre ellas:
 
-| Model | AUC | Gini | KS |
+- Edad
+- Relación entre deuda e ingresos
+- Utilización del crédito
+- Ingreso mensual
+- Número de dependientes
+- Líneas de crédito y préstamos abiertos
+- Préstamos inmobiliarios
+- Total de pagos atrasados
+- Máximo número de pagos atrasados
+- Indicador de atrasos de 90 días o más
+- Indicador de cualquier pago atrasado
+- Severidad de los pagos atrasados
+- Carga de pagos atrasados
+- Ingreso por línea de crédito
+
+---
+
+## Desempeño de los modelos
+
+El desempeño se evaluó mediante el área bajo la curva ROC (AUC-ROC), el coeficiente de Gini y el estadístico de Kolmogórov-Smirnov (KS).
+
+| Modelo | AUC | Gini | KS |
 |---|---:|---:|---:|
-| Logistic Regression | 0.8628 | 0.7257 | 0.5685 |
+| Regresión logística | 0.8628 | 0.7257 | 0.5685 |
 | XGBoost | 0.8700 | 0.7401 | 0.5835 |
 
-XGBoost achieved slightly higher predictive performance across all three discrimination metrics.
+XGBoost obtuvo un desempeño predictivo ligeramente superior en las tres métricas de discriminación.
 
-However, the improvement was moderate, while Logistic Regression provides substantially greater interpretability.
+Sin embargo, la mejora fue moderada, mientras que la regresión logística ofrece una interpretabilidad considerablemente mayor.
 
-Therefore:
+Por lo tanto:
 
-> **Logistic Regression is retained as the champion model, while XGBoost is retained as the challenger.**
+> **La regresión logística se mantiene como modelo campeón y XGBoost se conserva como modelo retador.**
 
 ---
 
-## Calibration
+## Calibración
 
-Model calibration was evaluated using:
+La calibración de los modelos se evaluó mediante:
 
-- Brier score
-- Calibration curves
-- Predicted versus observed default rates by decile
+- El puntaje de Brier
+- Curvas de calibración
+- Tasas de incumplimiento predichas y observadas por decil
 
-### Brier Score
+### Puntaje de Brier
 
-| Model | Brier Score |
+| Modelo | Puntaje de Brier |
 |---|---:|
-| Logistic Regression | 0.049421 |
+| Regresión logística | 0.049421 |
 | XGBoost | 0.048588 |
 
-Both models showed reasonable calibration, with XGBoost performing slightly better according to the Brier score.
+Ambos modelos mostraron una calibración razonable. Según el puntaje de Brier, XGBoost tuvo un resultado ligeramente mejor.
 
 ---
 
-## Risk Ranking
+## Ordenamiento del riesgo
 
-Predicted probabilities were evaluated across ten risk deciles.
+Las probabilidades predichas se evaluaron en diez deciles de riesgo.
 
-The highest-risk decile contained borrowers with substantially higher observed default rates than the lowest-risk decile.
+El decil de mayor riesgo tuvo tasas observadas de incumplimiento considerablemente superiores a las del decil de menor riesgo.
 
-For example:
+Por ejemplo:
 
-| Model | Highest-risk decile | Lowest-risk decile |
+| Modelo | Decil de mayor riesgo | Decil de menor riesgo |
 |---|---:|---:|
-| Logistic Regression | 35.97% observed default | 0.30% |
-| XGBoost | 37.20% observed default | 0.40% |
+| Regresión logística | 35,97 % de incumplimiento observado | 0,30 % |
+| XGBoost | 37,20 % de incumplimiento observado | 0,40 % |
 
-This demonstrates strong risk discrimination and meaningful borrower ranking.
+Esto demuestra una sólida capacidad de discriminación y un ordenamiento significativo de los prestatarios según su riesgo.
 
 ---
 
-## Stability Monitoring
+## Monitoreo de estabilidad
 
-Population Stability Index (PSI) was calculated for the model variables and predicted PD distributions.
+Se calculó el Índice de Estabilidad Poblacional (PSI) para las variables del modelo y las distribuciones de PD predichas.
 
-Reference thresholds:
+Umbrales de referencia:
 
-| PSI | Interpretation |
+| PSI | Interpretación |
 |---:|---|
-| < 0.10 | Stable |
-| 0.10–0.25 | Moderate change |
-| > 0.25 | Significant change |
+| < 0.10 | Estable |
+| 0.10–0.25 | Cambio moderado |
+| > 0.25 | Cambio significativo |
 
-### Feature Stability
+### Estabilidad de las variables
 
-All 14 monitored variables had PSI values below 0.001.
+Las 14 variables monitoreadas tuvieron valores de PSI inferiores a 0.001.
 
-The highest PSI was:
+El PSI más alto fue:
 
 `income_per_credit_line_clean = 0.000891`
 
-indicating very high stability between the reference and monitoring samples.
+Este resultado indica una estabilidad muy alta entre las muestras de referencia y monitoreo.
 
-### PD Stability
+### Estabilidad de la PD
 
-| Model | PSI | Interpretation |
+| Modelo | PSI | Interpretación |
 |---|---:|---|
-| Logistic Regression | 0.000519 | Stable |
-| XGBoost | 0.000215 | Stable |
+| Regresión logística | 0.000519 | Estable |
+| XGBoost | 0.000215 | Estable |
 
-No material distributional shift was detected.
+No se detectó un cambio material en las distribuciones.
 
-> **Note:** The reference and monitoring samples in this exercise originate from a random train-test split of the same dataset. Therefore, the PSI analysis demonstrates sample stability rather than true temporal stability. In a production environment, PSI should be calculated using out-of-time or recent portfolio data.
+> **Nota:** En este ejercicio, las muestras de referencia y monitoreo provienen de una partición aleatoria del mismo conjunto de datos. Por lo tanto, el análisis PSI muestra estabilidad entre muestras, pero no una estabilidad temporal real. En un entorno de producción, el PSI debería calcularse con datos de una partición temporal o de una cartera reciente.
 
 ---
 
 ## Notebooks
 
-| Notebook | Description |
+| Notebook | Descripción |
 |---|---|
-| `01_eda.ipynb` | Exploratory data analysis |
-| `02_data_quality.ipynb` | Data quality assessment |
-| `03_feature_engineering.ipynb` | Feature engineering and leakage-safe transformations |
-| `04_logistic_pd.ipynb` | Logistic Regression PD model |
-| `05_xgboost_challenger.ipynb` | XGBoost challenger model |
-| `06_validation.ipynb` | Model validation and calibration |
-| `07_monitoring.ipynb` | PSI-based stability monitoring |
+| `01_eda.ipynb` | Análisis exploratorio de datos |
+| `02_data_quality.ipynb` | Evaluación de la calidad de los datos |
+| `03_feature_engineering.ipynb` | Ingeniería de características y transformaciones que evitan la fuga de información |
+| `04_logistic_pd.ipynb` | Modelo de PD con regresión logística |
+| `05_xgboost_challenger.ipynb` | Modelo retador XGBoost |
+| `06_validation.ipynb` | Validación y calibración del modelo |
+| `07_monitoring.ipynb` | Monitoreo de estabilidad mediante PSI |
 
 ---
 
-## Key Conclusions
+## Conclusiones principales
 
-The PD modeling exercise demonstrates that:
+El ejercicio de modelado de PD muestra que:
 
-1. Leakage-safe feature engineering substantially improves predictive performance.
-2. Logistic Regression provides strong discrimination while maintaining interpretability.
-3. XGBoost achieves moderately higher predictive performance.
-4. Both models provide meaningful risk ranking across deciles.
-5. Both models show reasonable calibration.
-6. No significant distributional instability was detected in the validation sample.
-7. Logistic Regression is selected as the **champion model**, with XGBoost retained as the **challenger**.
+1. La ingeniería de características que evita la fuga de información mejora considerablemente el desempeño predictivo.
+2. La regresión logística ofrece una sólida capacidad de discriminación y mantiene la interpretabilidad.
+3. XGBoost alcanza un desempeño predictivo moderadamente superior.
+4. Ambos modelos ordenan a los prestatarios de manera significativa según su riesgo en los distintos deciles.
+5. Ambos modelos muestran una calibración razonable.
+6. No se detectó una inestabilidad significativa en la distribución de la muestra de validación.
+7. La regresión logística se selecciona como **modelo campeón** y XGBoost se conserva como **modelo retador**.
 
 ---
 
-## Disclaimer
+## Aviso
 
-This project is an educational and portfolio implementation inspired by IFRS 9 credit risk modeling practices.
+Este proyecto es una implementación educativa y de portafolio inspirada en prácticas de modelado de riesgo de crédito bajo IFRS 9.
 
-It is not intended to represent a complete regulatory model implementation.
+No pretende representar una implementación regulatoria completa de un modelo.
 
-A production IFRS 9 framework would additionally require elements such as:
+Un marco IFRS 9 de producción también requeriría elementos como:
 
-- Point-in-time and through-the-cycle considerations
-- Macroeconomic scenarios
-- Forward-looking information
-- Probability-weighted ECL
-- Model governance
-- Independent validation
-- Backtesting
-- Override governance
-- Monitoring using out-of-time portfolio data
+- Consideraciones *point-in-time* y *through-the-cycle*
+- Escenarios macroeconómicos
+- Información prospectiva
+- Pérdida crediticia esperada ponderada por probabilidad
+- Gobierno del modelo
+- Validación independiente
+- Pruebas retrospectivas
+- Gobierno de ajustes manuales
+- Monitoreo con datos de cartera de períodos posteriores
