@@ -1,15 +1,15 @@
 # IFRS9-Credit-Risk
 
-Portfolio project for credit-risk modelling inspired by IFRS 9, covering:
+Proyecto de portafolio sobre modelado de riesgo de crédito inspirado en IFRS 9. Incluye:
 
-- **PD (Probability of Default)** — Logistic Regression as an interpretable baseline/champion and XGBoost as challenger.
-- **LGD (Loss Given Default)** — regression/beta-regression style workflow depending on the available target.
-- **CCF (Credit Conversion Factor)** — experimental portfolio workflow; the dataset must contain sufficient exposure/limit information to construct an observed CCF.
-- Validation, calibration, risk bands and monitoring.
+- **PD (probabilidad de incumplimiento)**: regresión logística como modelo base y campeón interpretable, y XGBoost como modelo retador.
+- **LGD (pérdida dado el incumplimiento)**: flujo de trabajo de regresión —incluida la regresión beta, según corresponda— condicionado a la variable objetivo disponible.
+- **CCF (factor de conversión de crédito)**: flujo de trabajo experimental de cartera. El conjunto de datos debe contener información suficiente sobre exposiciones y límites para calcular un CCF observado.
+- Validación, calibración, bandas de riesgo y monitoreo.
 
-> **Important:** This is an educational/portfolio implementation. It is not a complete regulatory IFRS 9 implementation and does not claim regulatory compliance.
+> **Importante:** Esta es una implementación educativa y de portafolio. No constituye una implementación regulatoria completa de IFRS 9 ni afirma cumplir con sus requisitos regulatorios.
 
-## Repository structure
+## Estructura del repositorio
 
 ```text
 IFRS9-Credit-Risk/
@@ -41,33 +41,27 @@ IFRS9-Credit-Risk/
 └── .gitignore
 ```
 
-## Workflow
-
-1. Download the public datasets manually and place them under the corresponding `data/raw/` folder.
-2. Never commit credentials, API tokens or sensitive banking data.
-3. Run the notebooks in numerical order.
-4. Save trained models under `models/`.
-5. Document assumptions, limitations and validation results.
-
-## Recommended modelling philosophy
-
-### PD
-- Target: default within the defined observation horizon.
-- Champion: Logistic Regression.
-- Challenger: XGBoost.
-- Metrics: ROC-AUC, Gini, KS, confusion matrix and calibration.
-- Monitoring: PSI and population/risk-band stability.
-
-### LGD
-- Define the loss/recovery target carefully.
-- Separate defaulted observations from non-defaulted observations when appropriate.
-- Evaluate MAE/RMSE and distributional behaviour.
-- Document treatment of zero and one boundary values if using a bounded model.
-
-### CCF
-CCF should not be fabricated from a dataset that lacks the necessary exposure/limit fields. The project therefore includes a framework that checks for the required columns before modelling.
-
-## Running locally
+Flujo de trabajo
+1. Descarga manualmente los conjuntos de datos públicos y colócalos en la carpeta data/raw/ correspondiente.
+2. Nunca subas credenciales, tokens de API ni datos bancarios sensibles al repositorio.
+3. Ejecuta los notebooks en orden numérico.
+4. Guarda los modelos entrenados en models/.
+5. Documenta las hipótesis, limitaciones y resultados de validación.
+Enfoque de modelado recomendado
+PD
+- Objetivo: incumplimiento dentro del horizonte de observación definido.
+- Modelo campeón: regresión logística.
+- Modelo retador: XGBoost.
+- Métricas: ROC-AUC, Gini, KS, matriz de confusión y calibración.
+- Monitoreo: PSI y estabilidad de la población y de las bandas de riesgo.
+LGD
+- Define cuidadosamente el objetivo de pérdida o recuperación.
+- Cuando corresponda, separa las observaciones con incumplimiento de las que no lo presentan.
+- Evalúa MAE, RMSE y el comportamiento de la distribución.
+- Si utilizas un modelo acotado, documenta el tratamiento de los valores límite cero y uno.
+CCF
+No se debe fabricar un CCF a partir de un conjunto de datos que carezca de los campos de exposición y límite necesarios. Por eso, el proyecto incluye un flujo de trabajo que verifica la presencia de las columnas requeridas antes de modelar.
+Ejecución local
 
 ```bash
 python -m venv .venv
