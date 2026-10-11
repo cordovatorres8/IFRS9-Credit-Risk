@@ -14,13 +14,15 @@ con balance y límite medidos en una fecha previa fija y EAD al default. La lite
 
 ## Cuadernos
 
-1. `01_dataset_audit.ipynb`: consulta UCI, inspecciona metadatos y comprueba campos.
-2. `02_target_definition.ipynb`: fórmulas, alineamiento temporal y ejemplo aritmético hipotético.
-3. `03_model_readiness.ipynb`: omite el entrenamiento si faltan outcomes reales.
-4. `04_validation_and_limits.ipynb`: protocolo de validación y casos hipotéticos.
+1. `01_data_requirements.ipynb`: consulta UCI, inspecciona metadatos y comprueba campos.
+2. `02_target_construction.ipynb`: fórmulas, alineamiento temporal y ejemplo aritmético hipotético.
+3. `03_ccf_model.ipynb`: omite el entrenamiento si faltan outcomes reales.
+4. `04_validation.ipynb`: protocolo de validación y casos hipotéticos.
 
 ## Próximos datos necesarios
 
 ID de facilidad/deudor, fecha de default, saldo y límite en observación pre-default fija, EAD/saldo al default, moneda, estado/cura y predictores medidos en esa fecha. Entonces se puede construir LEQ, separar temporalmente y por cliente, comparar baseline y regresión, y reportar métricas auténticas. Raw/processed/models están excluidos de Git.
 
 **Conclusión:** el esqueleto CCF está completo como evaluación de factibilidad y metodología; el modelo empírico queda pendiente porque la fuente abierta seleccionada no identifica el target. No se sustituye por datos simulados ni proxy rotulado como CCF.
+
+
