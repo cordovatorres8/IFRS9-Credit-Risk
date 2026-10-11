@@ -61,7 +61,8 @@ Enfoque de modelado recomendado
 - Si utilizas un modelo acotado, documenta el tratamiento de los valores límite cero y uno.
 # CCF
 No se debe fabricar un CCF a partir de un conjunto de datos que carezca de los campos de exposición y límite necesarios. Por eso, el proyecto incluye un flujo de trabajo que verifica la presencia de las columnas requeridas antes de modelar.
-Ejecución local
+
+# Ejecución local
 
 ```bash
 python -m venv .venv
