@@ -48,18 +48,18 @@ Flujo de trabajo
 4. Guarda los modelos entrenados en models/.
 5. Documenta las hipótesis, limitaciones y resultados de validación.
 Enfoque de modelado recomendado
-PD
+# PD
 - Objetivo: incumplimiento dentro del horizonte de observación definido.
 - Modelo campeón: regresión logística.
 - Modelo retador: XGBoost.
 - Métricas: ROC-AUC, Gini, KS, matriz de confusión y calibración.
 - Monitoreo: PSI y estabilidad de la población y de las bandas de riesgo.
-LGD
+# LGD
 - Define cuidadosamente el objetivo de pérdida o recuperación.
 - Cuando corresponda, separa las observaciones con incumplimiento de las que no lo presentan.
 - Evalúa MAE, RMSE y el comportamiento de la distribución.
 - Si utilizas un modelo acotado, documenta el tratamiento de los valores límite cero y uno.
-CCF
+# CCF
 No se debe fabricar un CCF a partir de un conjunto de datos que carezca de los campos de exposición y límite necesarios. Por eso, el proyecto incluye un flujo de trabajo que verifica la presencia de las columnas requeridas antes de modelar.
 Ejecución local
 
