@@ -1,13 +1,26 @@
-# CCF — Credit Conversion Factor
+# CCF — Credit Conversion Factor / LEQ
 
-CCF requires sufficient information about undrawn/available exposure and drawn exposure around default.
+## Estado del módulo
 
-A typical conceptual definition is:
+Se evaluó UCI **Default of Credit Card Clients** (Yeh, 2009; 30.000 filas; CC BY 4.0). [Ficha oficial](https://archive.ics.uci.edu/dataset/350/default%2Bof%2Bcredit%2Bcard%2Bclients). Incluye límite (`LIMIT_BAL`), facturas y pagos mensuales y un indicador de default el mes siguiente. No incluye EAD/saldo en default emparejado con saldo y límite en una fecha previa fija. Por ello es útil para ejercicios PD/utilización, pero **no permite observar CCF/LEQ** y no se reporta un modelo ni métricas de CCF.
 
-`CCF = (EAD_at_default - drawn_exposure_at_observation) / available_undrawn_limit`
+## Definición escogida
 
-The exact definition must follow the chosen dataset and documented modelling convention.
+Para líneas revolventes, el target principal del proyecto será Loan Equivalent Exposure (LEQ):
 
-**Do not create a CCF model from a dataset that lacks the required exposure/limit fields.**
+`LEQ = (EAD_T - Balance_t) / (Limit_t - Balance_t)`
 
-This module is intentionally structured as an experimental portfolio component so that assumptions are visible and auditable.
+con balance y límite medidos en una fecha previa fija y EAD al default. La literatura usa también CCF = EAD_T / Balance_t; la terminología varía. El código mantiene ambas convenciones separadas y no recorta automáticamente valores extremos. Denominadores cero/casi cero requieren tratamiento y reporte explícitos.
+
+## Cuadernos
+
+1. `01_dataset_audit.ipynb`: consulta UCI, inspecciona metadatos y comprueba campos.
+2. `02_target_definition.ipynb`: fórmulas, alineamiento temporal y ejemplo aritmético hipotético.
+3. `03_model_readiness.ipynb`: omite el entrenamiento si faltan outcomes reales.
+4. `04_validation_and_limits.ipynb`: protocolo de validación y casos hipotéticos.
+
+## Próximos datos necesarios
+
+ID de facilidad/deudor, fecha de default, saldo y límite en observación pre-default fija, EAD/saldo al default, moneda, estado/cura y predictores medidos en esa fecha. Entonces se puede construir LEQ, separar temporalmente y por cliente, comparar baseline y regresión, y reportar métricas auténticas. Raw/processed/models están excluidos de Git.
+
+**Conclusión:** el esqueleto CCF está completo como evaluación de factibilidad y metodología; el modelo empírico queda pendiente porque la fuente abierta seleccionada no identifica el target. No se sustituye por datos simulados ni proxy rotulado como CCF.

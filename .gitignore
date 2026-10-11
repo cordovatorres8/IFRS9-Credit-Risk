@@ -228,3 +228,8 @@ PD/models/
 LGD/data/raw/
 LGD/data/processed/
 LGD/models/
+
+# CCF local data and models - do not upload
+CCF/data/raw/
+CCF/data/processed/
+CCF/models/
