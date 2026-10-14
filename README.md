@@ -1,7 +1,5 @@
 # Marco de Modelado de Riesgo de Crédito IFRS 9: PD, LGD y CCF/EAD
 
-# Marco de Modelado de Riesgo de Crédito IFRS 9: PD, LGD y CCF/EAD
-
 Proyecto de portafolio sobre modelado de riesgo de crédito inspirado en la normativa **IFRS 9**. El repositorio implementa la tríada completa del cálculo de la Pérdida Crediticia Esperada (*Expected Credit Loss*):
 
 $$\text{ECL} = \text{PD} \times \text{LGD} \times \text{EAD}$$
