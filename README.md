@@ -1,8 +1,8 @@
 # Marco de Modelado de Riesgo de Crédito IFRS 9: PD, LGD y CCF/EAD
 
-Marco integral y profesional de modelado de riesgo de crédito inspirado en la normativa **IFRS 9** (constitución de provisiones por pérdida crediticia esperada para Fase 1, Fase 2 y Fase 3) y los estándares del Comité de **Basilea (IRB Avanzado)**.
+# Marco de Modelado de Riesgo de Crédito IFRS 9: PD, LGD y CCF/EAD
 
-El repositorio implementa la tríada completa del cálculo de la Pérdida Crediticia Esperada (*Expected Credit Loss*):
+Proyecto de portafolio sobre modelado de riesgo de crédito inspirado en la normativa **IFRS 9**. El repositorio implementa la tríada completa del cálculo de la Pérdida Crediticia Esperada (*Expected Credit Loss*):
 
 $$\text{ECL} = \text{PD} \times \text{LGD} \times \text{EAD}$$
 
@@ -11,9 +11,12 @@ donde:
 * **LGD (*Loss Given Default*)**: Severidad o porcentaje económico de pérdida sobre la exposición no recuperado tras el proceso de cobranza y liquidación de garantías ($LGD = 1 - \text{Tasa de Recuperación}$).
 * **EAD (*Exposure at Default*)**: Exposición total adeudada al momento exacto del incumplimiento, modelada para líneas revolventes mediante el Factor de Conversión Crediticia (**CCF** / **LEQ**).
 
+> **Importante:** Esta es una implementación educativa y de portafolio. No constituye una implementación regulatoria completa de IFRS 9 ni afirma cumplir con sus requisitos regulatorios.
+
 ---
 
-## Estructura del Repositorio
+## Estructura del repositorio
+
 
 ```text
 IFRS9-Credit-Risk/
@@ -44,19 +47,17 @@ IFRS9-Credit-Risk/
 └── README.md           # Resumen general del proyecto
 ```
 
----
-
 ## Filosofía de Modelado y Gobierno de Riesgos
 
-| Módulo | Definición del Objetivo | Modelo Champion | Modelo Challenger | Criterios Clave de Evaluación |
+| Módulo | Definición del objetivo | Modelo Champion | Modelo Challenger | Criterios clave de evaluación |
 |---|---|---|---|---|
-| **PD** | Incumplimiento grave a 24 meses (`SeriousDlqin2yrs`) | **Regresión Logística** (Scorecard Interpretable) | **XGBoost** | ROC-AUC, Gini, estadístico KS, Brier Score, deciles de riesgo |
+| **PD** | Incumplimiento grave a 24 meses (`SeriousDlqin2yrs`) | **Regresión Logística** (Scorecard interpretable) | **XGBoost** | ROC-AUC, Gini, estadístico KS, Brier Score, deciles de riesgo |
 | **LGD** | Severidad económica de pérdida ($LGD \in [0, 1]$) | **Fractional Logit GLM** (Quasi-Binomial) | **XGBoost Regressor** | MAE, RMSE, garantía estricta de cotas $[0, 1]$, Downturn LGD |
-| **CCF / EAD** | Disposición de línea realizada ($\text{LEQ} \in [0, 1]$) | **Fractional Logit GLM** (Acotado) | **XGBoost Regressor** | Error estadístico LEQ, sesgo monetario de EAD ($), impacto en provisiones ECL |
+| **CCF / EAD** | Disposición de línea realizada ($\text{LEQ} \in [0, 1]$) | **Fractional Logit GLM** (acotado) | **XGBoost Regressor** | Error estadístico LEQ, sesgo monetario de EAD ($), impacto en provisiones ECL |
 
 ---
 
-## Resumen de Módulos
+## Resumen de módulos
 
 ### 1. Probabilidad de Incumplimiento (PD)
 * **Dataset**: *Give Me Some Credit* (150.000 acreditados, tasa de default global del 6,68%).
@@ -68,7 +69,37 @@ IFRS9-Credit-Risk/
 * **Dataset**: Cartera Hipotecaria Europea de Recuperación (2.545 préstamos; 1.817 contratos en default).
 * **Modelo Champion**: Fractional Logit GLM (MAE: **0.2651**, RMSE: **0.3266**, $R^2$: **0.1104**, 0% de predicciones fuera de límites económicos).
 * **Calibración**: Alta correlación y ajuste por deciles de LTV (desde 21,4% de LGD en el decil de bajo riesgo hasta 53,4% en el tramo de hipotecas *underwater* con LTV > 100%).
-* **Downturn LGD (Estrés Macroeconómico)**: Una caída simulada del 20% en las tasaciones inmobiliarias eleva la LGD promedio de la cartera de 31,6% a 38,4% (+680 pbs), sirviendo de base para provisiones conservadoras IFRS 9.
+* **Downturn LGD (estrés macroeconómico)**: Una caída simulada del 20% en las tasaciones inmobiliarias eleva la LGD promedio de la cartera de 31,6% a 38,4% (+680 pbs), sirviendo de base para provisiones conservadoras IFRS 9.
+
+---
+
+## Flujo de trabajo
+1. Descarga manualmente los conjuntos de datos públicos y colócalos en la carpeta `data/raw/` correspondiente.
+2. Nunca subas credenciales, tokens de API ni datos bancarios sensibles al repositorio.
+3. Ejecuta los notebooks en orden numérico.
+4. Guarda los modelos entrenados en `models/`.
+5. Documenta las hipótesis, limitaciones y resultados de validación.
+
+## Enfoque de modelado recomendado
+
+### PD
+- Objetivo: incumplimiento dentro del horizonte de observación definido.
+- Modelo campeón: regresión logística.
+- Modelo retador: XGBoost.
+- Métricas: ROC-AUC, Gini, KS, matriz de confusión y calibración.
+- Monitoreo: PSI y estabilidad de la población y de las bandas de riesgo.
+
+### LGD
+- Define cuidadosamente el objetivo de pérdida o recuperación.
+- Cuando corresponda, separa las observaciones con incumplimiento de las que no lo presentan.
+- Evalúa MAE, RMSE y el comportamiento de la distribución.
+- Si utilizas un modelo acotado, documenta el tratamiento de los valores límite cero y uno.
+
+### CCF
+No se debe fabricar un CCF a partir de un conjunto de datos que carezca de los campos de exposición y límite necesarios. Por eso, el proyecto incluye un flujo de trabajo que verifica la presencia de las columnas requeridas antes de modelar.
+
+## Ejecución local
+
 
 ### 3. Factor de Conversión Crediticia y EAD (CCF)
 * **Dataset**: Cartera de crédito revolvente (15.000 líneas activas, 1.255 defaults observados en ventana de 12 meses pre-default).
