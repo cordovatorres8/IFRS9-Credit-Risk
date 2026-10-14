@@ -1,0 +1,51 @@
+{
+  "portfolio_accounts": 15000,
+  "defaulted_accounts": 1255,
+  "n_train": 1004,
+  "n_test": 251,
+  "champion_model": "Fractional Logit GLM",
+  "challenger_model": "XGBoost Regressor",
+  "regulatory_benchmark": "Basel Standardized (75% / 50%)",
+  "metrics": {
+    "regulatory_fixed": {
+      "leq_mae": 0.158,
+      "leq_rmse": 0.194,
+      "leq_r2": -0.682,
+      "total_ead_bias_pct": -9.84,
+      "ead_dollar_mae": 1642.30
+    },
+    "historical_mean": {
+      "leq_mae": 0.119,
+      "leq_rmse": 0.152,
+      "leq_r2": -0.003,
+      "total_ead_bias_pct": -0.42,
+      "ead_dollar_mae": 1238.10
+    },
+    "fractional_logit_champion": {
+      "leq_mae": 0.089,
+      "leq_rmse": 0.112,
+      "leq_r2": 0.451,
+      "total_ead_bias_pct": 0.18,
+      "ead_dollar_mae": 894.20,
+      "bounded_guarantee": true
+    },
+    "xgboost_challenger": {
+      "leq_mae": 0.086,
+      "leq_rmse": 0.110,
+      "leq_r2": 0.472,
+      "total_ead_bias_pct": 0.12,
+      "ead_dollar_mae": 868.50
+    }
+  },
+  "ecl_impact": {
+    "total_regulatory_ecl": 1142500.0,
+    "total_model_ecl": 1264800.0,
+    "provision_correction": 122300.0,
+    "regulatory_underprovisioning_pct": 9.67
+  },
+  "stability_psi": {
+    "utilization_psi": 0.00015,
+    "credit_limit_psi": 0.00011,
+    "status": "STABLE"
+  }
+}

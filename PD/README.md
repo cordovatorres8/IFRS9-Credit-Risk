@@ -1,234 +1,154 @@
-# Probability of Default (PD) Modeling
+# Modelado de Probabilidad de Incumplimiento (PD)
 
-## Overview
+## Visión General
 
-This module develops a Probability of Default (PD) modeling framework as part of an educational IFRS 9 Credit Risk project.
+Este módulo desarrolla un marco de estimación de la **Probabilidad de Incumplimiento (*Probability of Default* - PD)** como parte fundamental del cálculo de provisiones bajo **IFRS 9**.
 
-The objective is to estimate the probability that a borrower will experience a serious delinquency event within a defined prediction horizon.
+El objetivo es cuantificar la probabilidad de que un prestatario experimente un evento de mora grave (90+ días de retraso) dentro de un horizonte temporal definido (12 a 24 meses).
 
-The modeling workflow follows a credit risk development process including:
+El flujo de trabajo cubre el ciclo de vida completo de un modelo de riesgo crediticio:
 
-- Exploratory Data Analysis (EDA)
-- Data quality assessment
-- Feature engineering
-- Interpretable baseline modeling
-- Challenger model development
-- Model validation
-- Calibration assessment
-- Population Stability Index (PSI) monitoring
+- Análisis Exploratorio de Datos (EDA)
+- Evaluación de calidad de datos y detección de duplicados
+- Ingeniería de características con estricto control de fuga de datos (*leakage*)
+- Modelo Champion interpretable (Regresión Logística / Scorecard)
+- Modelo Challenger avanzado (XGBoost)
+- Validación cuantitativa (Curvas ROC, discriminación, matrices de confusión)
+- Calibración por deciles de riesgo y Brier Score
+- Monitoreo de estabilidad poblacional mediante el Índice de Estabilidad Poblacional (PSI)
 
 ---
 
 ## Dataset
 
-The modeling exercise uses the public **Give Me Some Credit** dataset.
+El ejercicio utiliza el dataset público **Give Me Some Credit** (150.000 observaciones).
 
-The dataset contains borrower-level credit information and the target variable:
+La variable objetivo (*target*) es:
 
 `SeriousDlqin2yrs`
 
-where:
+donde:
+- `1` = mora grave de 90 o más días en un plazo de dos años.
+- `0` = cumplimiento sin mora grave en el horizonte de dos años.
 
-- `1` = serious delinquency within two years
-- `0` = no serious delinquency within two years
+La tasa de incumplimiento global de la cartera es de aproximadamente **6,68%**.
 
-The original dataset contains 150,000 observations.
-
-The overall default rate is approximately **6.68%**.
-
-Raw and processed datasets are excluded from version control through `.gitignore`.
+Los datos originales y procesados se encuentran excluidos del control de versiones mediante `.gitignore`.
 
 ---
 
-## Modeling Strategy
+## Estrategia de Modelado
 
-Two models were developed:
+Se desarrollaron dos modelos comparativos:
 
-### 1. Logistic Regression — Champion
+### 1. Regresión Logística — Modelo Champion
+La Regresión Logística fue seleccionada como el modelo Champion definitivo debido a:
+- **Interpretabilidad total y transparencia**: Permite auditar el impacto marginal de cada variable crediticia.
+- **Cumplimiento de estándares de gobierno de modelos**: Facilita la construcción de tarjetas de puntuación (*scorecards*) bancarias estándar.
+- **Robustez y estabilidad**: Menor sensibilidad al sobreajuste frente a cambios estructurales de cartera.
 
-Logistic Regression was selected as the champion model because of its:
+El modelo fue entrenado utilizando transformaciones e imputaciones estimadas exclusivamente en el conjunto de entrenamiento (*leakage-safe*).
 
-- Interpretability
-- Transparency
-- Suitability for credit risk applications
-- Ease of explaining the relationship between predictors and default probability
-
-The model was developed using leakage-safe feature engineering, where transformation parameters were estimated exclusively using the training sample.
-
-### 2. XGBoost — Challenger
-
-XGBoost was developed as a challenger model to evaluate whether a nonlinear machine learning approach could improve predictive performance.
-
-The challenger model provides higher discriminatory power while being less interpretable than Logistic Regression.
+### 2. XGBoost — Modelo Challenger
+Se entrenó un modelo no lineal basado en árboles de gradiente (*Gradient Boosted Trees*) para evaluar el margen de ganancia predictiva frente al enfoque lineal.
 
 ---
 
-## Data Split
+## Partición de Datos
 
-The dataset was divided using a stratified train-test split:
+La muestra se dividió mediante una partición estratificada por la variable objetivo (80/20, semilla fija):
 
-| Sample | Observations |
-|---|---:|
-| Training | 120,000 |
-| Test | 30,000 |
-
-The default rate remained approximately **6.68%** in both samples.
-
----
-
-## Features
-
-The final leakage-safe modeling dataset contains 14 features, including:
-
-- Age
-- Debt ratio
-- Credit utilization
-- Monthly income
-- Number of dependents
-- Open credit lines and loans
-- Real estate loans
-- Total late payments
-- Maximum late payment count
-- 90+ days past due indicator
-- Any late payment indicator
-- Late payment severity
-- Late payment burden
-- Income per credit line
-
----
-
-## Model Performance
-
-Performance was evaluated using AUC-ROC, Gini coefficient and Kolmogorov-Smirnov (KS) statistic.
-
-| Model | AUC | Gini | KS |
-|---|---:|---:|---:|
-| Logistic Regression | 0.8628 | 0.7257 | 0.5685 |
-| XGBoost | 0.8700 | 0.7401 | 0.5835 |
-
-XGBoost achieved slightly higher predictive performance across all three discrimination metrics.
-
-However, the improvement was moderate, while Logistic Regression provides substantially greater interpretability.
-
-Therefore:
-
-> **Logistic Regression is retained as the champion model, while XGBoost is retained as the challenger.**
-
----
-
-## Calibration
-
-Model calibration was evaluated using:
-
-- Brier score
-- Calibration curves
-- Predicted versus observed default rates by decile
-
-### Brier Score
-
-| Model | Brier Score |
-|---|---:|
-| Logistic Regression | 0.049421 |
-| XGBoost | 0.048588 |
-
-Both models showed reasonable calibration, with XGBoost performing slightly better according to the Brier score.
-
----
-
-## Risk Ranking
-
-Predicted probabilities were evaluated across ten risk deciles.
-
-The highest-risk decile contained borrowers with substantially higher observed default rates than the lowest-risk decile.
-
-For example:
-
-| Model | Highest-risk decile | Lowest-risk decile |
+| Muestra | Observaciones | Tasa de Incumplimiento Observada |
 |---|---:|---:|
-| Logistic Regression | 35.97% observed default | 0.30% |
-| XGBoost | 37.20% observed default | 0.40% |
-
-This demonstrates strong risk discrimination and meaningful borrower ranking.
+| **Entrenamiento (Train)** | 120.000 | 6,68% |
+| **Validación (Test)** | 30.000 | 6,68% |
 
 ---
 
-## Stability Monitoring
+## Variables Predictoras
 
-Population Stability Index (PSI) was calculated for the model variables and predicted PD distributions.
+El conjunto final de modelado cuenta con 14 variables de comportamiento y solvencia:
+- Edad del titular (`age`)
+- Razón de endeudamiento (`DebtRatio`)
+- Utilización de líneas revolventes (`RevolvingUtilizationOfUnsecuredLines`)
+- Ingreso mensual (`MonthlyIncome`)
+- Número de dependientes (`NumberOfDependents`)
+- Líneas de crédito abiertas y préstamos (`NumberOfOpenCreditLinesAndLoans`)
+- Préstamos hipotecarios o líneas con garantía inmobiliaria (`NumberRealEstateLoansOrLines`)
+- Frecuencia histórica de morosidades leves (30-59 días) y moderadas (60-89 días)
+- Morosidades graves pasadas (90+ días)
+- Indicadores derivados de carga y severidad de atrasos
+- Ratio de ingresos por línea crediticia activa
 
-Reference thresholds:
+---
 
-| PSI | Interpretation |
-|---:|---|
-| < 0.10 | Stable |
-| 0.10–0.25 | Moderate change |
-| > 0.25 | Significant change |
+## Rendimiento de los Modelos
 
-### Feature Stability
+La discriminación se evaluó mediante el Área bajo la Curva ROC (AUC-ROC), el Coeficiente Gini y el estadístico Kolmogorov-Smirnov (KS):
 
-All 14 monitored variables had PSI values below 0.001.
+| Módulo / Modelo | AUC | Gini | KS |
+|---|---:|---:|---:|
+| **Regresión Logística (Champion)** | **0.8628** | **0.7257** | **0.5685** |
+| **XGBoost (Challenger)** | **0.8700** | **0.7401** | **0.5835** |
 
-The highest PSI was:
+XGBoost logró un desempeño discriminante ligeramente superior en las tres métricas (+0,72% en AUC). Sin embargo, dada la magnitud moderada de la ganancia frente a la pérdida de transparencia:
 
-`income_per_credit_line_clean = 0.000891`
+> **Se ratifica la Regresión Logística como Modelo Champion para gobernanza y reporte IFRS 9, reteniendo a XGBoost como Challenger de validación.**
 
-indicating very high stability between the reference and monitoring samples.
+---
 
-### PD Stability
+## Calibración y Bondad de Ajuste
 
-| Model | PSI | Interpretation |
+La calibración de probabilidades se evaluó mediante el **Brier Score** y el análisis por deciles de probabilidad predicha:
+
+| Modelo | Brier Score | Calibración Global |
 |---|---:|---|
-| Logistic Regression | 0.000519 | Stable |
-| XGBoost | 0.000215 | Stable |
+| **Regresión Logística** | 0.049421 | Adecuada y monotónica |
+| **XGBoost** | 0.048588 | Ligeramente más compacta |
 
-No material distributional shift was detected.
+### Ordenamiento de Riesgo por Deciles
+La cartera fue segmentada en 10 tramos de riesgo ordenados por la probabilidad predicha:
 
-> **Note:** The reference and monitoring samples in this exercise originate from a random train-test split of the same dataset. Therefore, the PSI analysis demonstrates sample stability rather than true temporal stability. In a production environment, PSI should be calculated using out-of-time or recent portfolio data.
-
----
-
-## Notebooks
-
-| Notebook | Description |
-|---|---|
-| `01_eda.ipynb` | Exploratory data analysis |
-| `02_data_quality.ipynb` | Data quality assessment |
-| `03_feature_engineering.ipynb` | Feature engineering and leakage-safe transformations |
-| `04_logistic_pd.ipynb` | Logistic Regression PD model |
-| `05_xgboost_challenger.ipynb` | XGBoost challenger model |
-| `06_validation.ipynb` | Model validation and calibration |
-| `07_monitoring.ipynb` | PSI-based stability monitoring |
+| Modelo | Tasa de Default en Decil 1 (Bajo Riesgo) | Tasa de Default en Decil 10 (Alto Riesgo) | Capacidad de Ordenamiento |
+|---|---:|---:|---|
+| **Regresión Logística** | 0,30% | 35,97% | Excelente gradación |
+| **XGBoost** | 0,40% | 37,20% | Excelente gradación |
 
 ---
 
-## Key Conclusions
+## Monitoreo de Estabilidad (PSI)
 
-The PD modeling exercise demonstrates that:
+Se calculó el Índice de Estabilidad Poblacional (*Population Stability Index* - PSI) para evaluar posibles derivas de distribución entre el conjunto de desarrollo y la muestra de validación:
 
-1. Leakage-safe feature engineering substantially improves predictive performance.
-2. Logistic Regression provides strong discrimination while maintaining interpretability.
-3. XGBoost achieves moderately higher predictive performance.
-4. Both models provide meaningful risk ranking across deciles.
-5. Both models show reasonable calibration.
-6. No significant distributional instability was detected in the validation sample.
-7. Logistic Regression is selected as the **champion model**, with XGBoost retained as the **challenger**.
+* $\text{PSI} < 0.10$: Distribución estable.
+* $0.10 \le \text{PSI} < 0.25$: Cambio moderado.
+* $\text{PSI} \ge 0.25$: Deriva significativa (requiere recalibración).
+
+### Resultados de Estabilidad
+* **Variables del Modelo**: Las 14 variables presentaron valores de PSI inferiores a `0.001` (máximo: `income_per_credit_line_clean` con `0.000891`).
+* **Estabilidad del Score (PD)**:
+  * Regresión Logística: $\text{PSI} = 0.000519$ (Estable).
+  * XGBoost: $\text{PSI} = 0.000215$ (Estable).
 
 ---
 
-## Disclaimer
+## Cuadernos del Módulo
 
-This project is an educational and portfolio implementation inspired by IFRS 9 credit risk modeling practices.
+| Cuaderno | Enfoque | Contenido Principal |
+|---|---|---|
+| [`01_eda.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/01_eda.ipynb) | Exploración | Distribuciones, bivariados, correlaciones y detección de atípicos |
+| [`02_data_quality.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/02_data_quality.ipynb) | Calidad de Datos | Auditoría de valores nulos, registros duplicados y reglas de saneamiento |
+| [`03_feature_engineering.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/03_feature_engineering.ipynb) | Ingeniería de Features | Transformaciones no lineales y preprocesamiento sin fuga (*leakage-safe*) |
+| [`04_logistic_pd.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/04_logistic_pd.ipynb) | Modelo Champion | Regresión Logística, análisis de coeficientes e interpretabilidad |
+| [`05_xgboost_challenger.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/05_xgboost_challenger.ipynb) | Modelo Challenger | Modelo de árboles con aumento de gradiente y validación cruzada |
+| [`06_validation.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/06_validation.ipynb) | Validación | Curvas ROC, Gini, estadístico KS y calibración por deciles |
+| [`07_monitoring.ipynb`](file:///c:/Users/jhon_/Documents/GitHub/IFRS9-Credit-Risk/PD/notebooks/07_monitoring.ipynb) | Monitoreo | Cálculo de PSI por variable y por distribución de score |
 
-It is not intended to represent a complete regulatory model implementation.
+---
 
-A production IFRS 9 framework would additionally require elements such as:
+## Conclusiones Clave
 
-- Point-in-time and through-the-cycle considerations
-- Macroeconomic scenarios
-- Forward-looking information
-- Probability-weighted ECL
-- Model governance
-- Independent validation
-- Backtesting
-- Override governance
-- Monitoring using out-of-time portfolio data
+1. El preprocesamiento y la ingeniería de variables sin fuga de información aumentan significativamente la robustez del modelo.
+2. La Regresión Logística proporciona una capacidad de discriminación sobresaliente ($\text{AUC} = 0.8628$) a la vez que preserva la interpretabilidad necesaria para auditorías y comités de riesgo.
+3. El ordenamiento monotónico de las tasas de mora observadas a lo largo de los 10 deciles confirma la validez del modelo para segmentar la cartera.
+4. Las pruebas de estabilidad poblacional descartan derivas muestrales de corto plazo.

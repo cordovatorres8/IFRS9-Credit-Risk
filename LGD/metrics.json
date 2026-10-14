@@ -1,13 +1,51 @@
 {
   "n_train": 1453,
   "n_test": 364,
-  "baseline_train_mean": 0.32101967227398487,
-  "baseline_mae": 0.3004850217780513,
-  "baseline_rmse": 0.3463680800822745,
-  "linear_intercept": 0.04485106324655466,
-  "linear_ltv_coef": 0.36909851503442787,
-  "linear_mae": 0.2644993704947727,
-  "linear_rmse": 0.32614623576250623,
-  "linear_r2": 0.11294700208867081,
-  "predictions_outside_0_1": 0
+  "champion_model": "Fractional Logit GLM",
+  "challenger_model": "XGBoost Regressor",
+  "benchmark_model": "Linear Regression (OLS)",
+  "metrics": {
+    "baseline_mean": {
+      "mae": 0.300485,
+      "rmse": 0.346368,
+      "r2": -0.000287,
+      "out_of_bounds_pct": 0.0
+    },
+    "linear_ols": {
+      "mae": 0.264499,
+      "rmse": 0.326146,
+      "r2": 0.112947,
+      "out_of_bounds_pct": 0.0
+    },
+    "fractional_logit_champion": {
+      "mae": 0.265103,
+      "rmse": 0.326612,
+      "r2": 0.110412,
+      "out_of_bounds_pct": 0.0,
+      "bounded_guarantee": true
+    },
+    "two_stage_hurdle": {
+      "mae": 0.262814,
+      "rmse": 0.326089,
+      "r2": 0.113258,
+      "out_of_bounds_pct": 0.0
+    },
+    "xgboost_challenger": {
+      "mae": 0.261189,
+      "rmse": 0.328391,
+      "r2": 0.100889,
+      "out_of_bounds_pct": 0.0
+    }
+  },
+  "stability_psi": {
+    "ltv_psi": 0.00012,
+    "predicted_lgd_psi": 0.00018,
+    "status": "STABLE"
+  },
+  "stress_testing": {
+    "baseline_lgd": 0.3161,
+    "downturn_10pct_drop": 0.3482,
+    "downturn_20pct_drop": 0.3841,
+    "downturn_30pct_drop": 0.4265
+  }
 }
